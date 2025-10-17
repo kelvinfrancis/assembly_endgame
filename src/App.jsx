@@ -1,10 +1,14 @@
 import {useState} from "react";
+import { clsx } from "clsx"
 import {languages} from "./languages";
 
 function App() {
     const [currentWord, setCurrentWord] = useState("react");
 
     const [guessedLetters, setGuessedLetters] = useState([])
+
+    const wrongGuessesCount = guessedLetters.filter(letter => !currentWord.includes(letter)).length;
+    console.log(wrongGuessesCount);
 
     const alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
@@ -16,18 +20,32 @@ function App() {
         )
     }
 
-    const keyboardElements = alphabet.split("").map((letter) => (
-        <button 
-            key={letter} 
-            className="key"
-            onClick={() => addGuessedLetters(letter)}
-        >
-            {letter.toUpperCase()}
-        </button>
-    ));
+    const keyboardElements = alphabet.split("").map((letter) => {
+        const isGuessed = guessedLetters.includes(letter)
+        const isCorrect = isGuessed && currentWord.includes(letter)
+        const isWrong = isGuessed && !currentWord.includes(letter)
+        const className = clsx({
+            correct: isCorrect,
+            wrong: isWrong,
+        })
+
+        return (
+            <button
+                className={className}
+                key={letter}
+                onClick={() => addGuessedLetters(letter)}
+            >
+                {letter.toUpperCase()}
+            </button>
+        )
+    });
 
     const letterElements = currentWord.split("").map((letter, index) => (
-        <span key={index}>{letter.toUpperCase()}</span>
+        <span key={index}>
+            {guessedLetters.includes(letter) ?
+                letter.toUpperCase() : ""
+            }
+        </span>
     ));
 
     const languageElements = languages.map((lang) => {
